@@ -1,6 +1,10 @@
+import { useState } from 'react';
+
 function TaskItem({ task, onEdit, onDelete, onToggleStatus }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const priorityClass = `priority-${task.priority.toLowerCase()}`;
   const statusClass = task.status === 'Completed' ? 'completed' : 'pending';
+  const showSeeMore = task.description.length > 150;
 
   return (
     <div className={`task-item ${statusClass}`}>
@@ -11,7 +15,17 @@ function TaskItem({ task, onEdit, onDelete, onToggleStatus }) {
         </span>
       </div>
       
-      <p className="task-description">{task.description}</p>
+      <div className={`task-description ${isExpanded ? 'expanded' : ''}`}>
+        {task.description}
+      </div>
+      {showSeeMore && (
+        <button 
+          className="see-more-btn" 
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? 'See less' : 'See more'}
+        </button>
+      )}
       
       <div className="task-meta">
         <span className="due-date">Due: {task.dueDate}</span>

@@ -1,13 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
+import ConfirmModal from '../components/ConfirmModal';
 import { getTasks, addTask, updateTask, deleteTask } from '../utils/storage';
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
   const [toast, setToast] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const formRef = useRef(null);
 
   useEffect(() => {
     setTasks(getTasks());
@@ -32,14 +36,27 @@ function Tasks() {
 
   const handleEdit = (task) => {
     setEditingTask(task);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      deleteTask(id);
-      setTasks(getTasks());
-      showToast('Task deleted successfully!', 'info');
-    }
+    setTaskToDelete(id);
+    setShowModal(true);
+  };
+
+  const confirmDelete = () => {
+    deleteTask(taskToDelete);
+    setTasks(getTasks());
+    showToast('Task deleted successfully!', 'info');
+    setShowModal(false);
+    setTaskToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setShowModal(false);
+    setTaskToDelete(null);
   };
 
   const handleToggleStatus = (task) => {
@@ -61,12 +78,20 @@ function Tasks() {
           {toast.message}
         </div>
       )}
+      <ConfirmModal
+        isOpen={showModal}
+        message="Are you sure you want to delete this task?"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
       <div className="container">
-        <TaskForm
-          editingTask={editingTask}
-          onSubmit={handleAddTask}
-          onCancel={handleCancel}
-        />
+        <div ref={formRef}>
+          <TaskForm
+            editingTask={editingTask}
+            onSubmit={handleAddTask}
+            onCancel={handleCancel}
+          />
+        </div>
         <TaskList
           tasks={tasks}
           onEdit={handleEdit}

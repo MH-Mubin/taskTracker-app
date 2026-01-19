@@ -12,6 +12,14 @@ function TaskForm({ editingTask, onSubmit, onCancel }) {
   useEffect(() => {
     if (editingTask) {
       setFormData(editingTask);
+    } else {
+      setFormData({
+        title: '',
+        description: '',
+        dueDate: '',
+        status: 'Pending',
+        priority: 'Medium'
+      });
     }
   }, [editingTask]);
 
@@ -56,8 +64,10 @@ function TaskForm({ editingTask, onSubmit, onCancel }) {
         rows="3"
       />
 
+      <label htmlFor="dueDate" className="form-label">Due Date</label>
       <input
         type="date"
+        id="dueDate"
         name="dueDate"
         value={formData.dueDate}
         onChange={handleChange}
