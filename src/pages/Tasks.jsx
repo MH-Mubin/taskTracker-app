@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import ConfirmModal from '../components/ConfirmModal';
 import Navbar from '../components/Navbar';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
-import ConfirmModal from '../components/ConfirmModal';
-import { getTasks, addTask, updateTask, deleteTask } from '../utils/storage';
+import { addTask, deleteTask, getRegularTasks, updateTask } from '../utils/storage';
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -13,8 +13,12 @@ function Tasks() {
   const [taskToDelete, setTaskToDelete] = useState(null);
   const formRef = useRef(null);
 
+  const refreshTasks = () => {
+    setTasks(getRegularTasks());
+  };
+
   useEffect(() => {
-    setTasks(getTasks());
+    refreshTasks();
   }, []);
 
   const showToast = (message, type = 'success') => {
@@ -31,7 +35,7 @@ function Tasks() {
       addTask(taskData);
       showToast('Task added successfully!');
     }
-    setTasks(getTasks());
+    refreshTasks();
   };
 
   const handleEdit = (task) => {
@@ -48,7 +52,7 @@ function Tasks() {
 
   const confirmDelete = () => {
     deleteTask(taskToDelete);
-    setTasks(getTasks());
+    refreshTasks();
     showToast('Task deleted successfully!', 'info');
     setShowModal(false);
     setTaskToDelete(null);
@@ -62,7 +66,7 @@ function Tasks() {
   const handleToggleStatus = (task) => {
     const newStatus = task.status === 'Pending' ? 'Completed' : 'Pending';
     updateTask(task.id, { status: newStatus });
-    setTasks(getTasks());
+    refreshTasks();
     showToast(`Task marked as ${newStatus}!`);
   };
 
@@ -97,6 +101,8 @@ function Tasks() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onToggleStatus={handleToggleStatus}
+          isRecurring={false}
+          emptyMessage="No tasks yet. Add your first task above!"
         />
       </div>
     </div>
